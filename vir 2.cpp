@@ -6,6 +6,8 @@ struct node{
 	//I take time in milli seconds
 	long timelimit;
 	int id;
+	bool isvirtural;
+	int virtual_id;
 	node* next;
 	node* prev;
 	node* linkfirst;
@@ -13,7 +15,7 @@ struct node{
 	node* linkthird;
 	node* linkfourth;
 };
-int global_id=0;
+int global_id=0,virtual_id=0;
 
 
 class chord_list{
@@ -26,45 +28,71 @@ class chord_list{
 		head=NULL;
 		tail=NULL;
 	}
-	void add(int id_count)
+	void add()
 	{
-		node* temp=new node();
+		string  temp_data,temp_data_v;
+		node* new_node=new node();
+		node* virtaul_node=new node();
 		cout<<"Enter data to store in node:";
-		cin>>temp->data;
-		temp->id=id_count;
-		temp->linkfirst=NULL;
-		temp->linksecond=NULL;
-		temp->linkthird=NULL;
-		temp->linkfourth=NULL;
-		temp->timelimit=1000;
-		if(head==NULL){
-		head=temp;
-		tail=temp;	
-		tail->next=head;
-		head->prev=tail;	
-		}else{
+		cin>>temp_data;
+		cout<<"Enter data to store in virtaul node node:";
+		cin>>temp_data_v;
+		new_node->data=temp_data;
+		new_node->id=global_id++;
+		new_node->timelimit=1000;
+		new_node->isvirtural=false;
+		new_node->virtual_id=virtual_id;
+		virtaul_node->data=temp_data_v;
+		virtaul_node->id=global_id++;
+		virtaul_node->timelimit=1000;
+		virtaul_node->isvirtural=true;
+		virtaul_node->virtual_id=virtual_id;
+		virtual_id++;
 		
-		tail->next=temp;
-		temp->prev=tail;
-		tail=temp;
+		if(head==NULL){
+		head=new_node;
+		tail=new_node;	
+		tail->next=virtaul_node;
+		virtaul_node->prev=tail;
+		tail=virtaul_node;
 		tail->next=head;
+		head->prev=tail;
+		}else{
+		tail->next=new_node;
+		new_node->prev=tail;
+		tail=new_node;
+		tail->next=virtaul_node;
+		virtaul_node->prev=tail;
+		tail=virtaul_node;
+		tail->next=head;
+		head->prev=tail;
 		}
 	}
-	void displayclockwise(){
+		void displayclockwise(){
 		node* itr=head;
+		int count=0;
+		string s1="node";
+		string s212="virtual node";
 		do{
-			cout<<"|"<<itr->id<<"|"<<itr->data<<"|->";
+			if(count%2==0){
+				cout<<"|"<<s1<<" :|"<<itr->id<<"|"<<itr->data<<"|-";
+			}else
+			 if(count%2==1){
+			cout<<"|"<<s212<<" :|"<<itr->id<<"|"<<itr->data<<"|->";	
+			}
 			
+			count++;
 			itr=itr->next;
 		}while(itr!=head);
 		
-	}
-	
+	    }
+
 	void joinnode(int join_id){
 		int pow_limit=0;		
 		node* itr=head;
 		int x;
-		do{
+		if(join_id%2==1){
+				do{
 			if(itr->id==join_id){
 			while(pow_limit<=3){
 				if(pow_limit==0){
@@ -110,8 +138,7 @@ class chord_list{
 			}			
 			itr=itr->next;
 		}while(itr!=head);
-		
-		
+		}
 	}
 	
 	void checklink(){
@@ -147,10 +174,7 @@ class chord_list{
 			}
 			
 			itr=itr->next;
-		}while(itr!=head);
-		
-		
-		
+		}while(itr!=head);	
 	}
 	
 	void searchNode(){
@@ -159,9 +183,15 @@ class chord_list{
 		int id_search;
 		cout<<"Enter node to search :";
 		cin>>id_search;
-bool flag=true;
+        bool flag=true;
 		do{
-			time_counter=time_counter+itr->timelimit;
+			if(itr->virtual_id==itr->next->virtual_id){
+//			time_counter=time_counter+itr->timelimit/2;	
+			}else{
+				
+				time_counter=time_counter+itr->timelimit;	
+			}
+			
 			if(itr->id==id_search){
 				
 				cout<<"Node founded :"<<"|"<<itr->data<<"|"<<itr->id<<"|->"<<endl;
@@ -186,21 +216,40 @@ bool flag=true;
 				break;
 				
 			
-			}else if( itr->linkthird!=NULL &&itr->linkthird->id<id_search && flag==true){
-				time_counter=time_counter+itr->timelimit;
+			}else if(itr->id%2==0){
+				
+				if( itr->linkthird!=NULL &&itr->linkthird->id<id_search && flag==true){
+					if(itr->id==itr->next->id){
+//			    time_counter=time_counter+itr->timelimit/2;	
+			}else{
+				
+				time_counter=time_counter+itr->timelimit;	
+			}
 				itr=itr->linkthird;
 				
 				flag=false;
 			}else if(itr->linksecond!=NULL &&   itr->linksecond->id<id_search && flag==true){
-				time_counter=time_counter+itr->timelimit;
+					if(itr->virtual_id==itr->next->virtual_id){
+//			time_counter=time_counter+itr->timelimit/2;	
+			}else{
+				
+				time_counter=time_counter+itr->timelimit;	
+			}
 				itr=itr->linksecond;
 				flag=false;
 				
 			}else if(itr->linkfirst!=NULL &&   itr->linkfirst->id<id_search && flag==true){
-				time_counter=time_counter+itr->timelimit;
+					if(itr->virtual_id==itr->next->virtual_id){
+//			time_counter=time_counter+itr->timelimit/2;	
+			}else{
+				
+				time_counter=time_counter+itr->timelimit;	
+			}
+			
 				itr=itr->linkfirst;
 				flag==false;
 		
+			}
 			}
 			
 			
@@ -229,9 +278,9 @@ switch(choice){
 		cout<<"Enter how many no of nodes you want enter 2^n:";
 		cin>>limit;
 		while(i<=limit){
-		    c1.add(global_id);	
+		    c1.add();	
 			i++;
-			global_id++;
+			
 		}		
 		while(j<=limit){
 		c1.joinnode(j);	
@@ -242,7 +291,7 @@ switch(choice){
 		c1.displayclockwise();
 		break;		
 	case 3:
-		c1.checklink();
+//		c1.checklink();
 		break;
 		
 	case 4:
